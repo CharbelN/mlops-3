@@ -109,3 +109,31 @@ uv run python scripts/featurize.py \
 ```
 
 **Branch**: `feature/featurize`
+
+### 3.3 Training Script
+
+**File**: `scripts/train.py`
+
+**Purpose**: Train a baseline model and save it for later use.
+
+**Features**:
+- **Preprocessing pipeline**: 
+  - MinMaxScaler for numeric features (Age, Fare)
+  - OneHotEncoder for categorical features (Sex, Embarked, Title, Family_size)
+  - OrdinalEncoder for ordinal features (Pclass)
+- **Baseline model**: LogisticRegression with max_iter=1000
+- **Cross-validation**: 5-fold CV to evaluate model performance
+- **Model persistence**: Save trained pipeline using pickle
+
+**Usage**:
+```bash
+uv run python scripts/train.py \
+  --input data/featurized/train_featurized.csv \
+  --output models/model.pkl
+```
+
+**Output**:
+- Trained model saved as pickle file in `models/` directory
+- Reports CV accuracy and training accuracy
+
+**Branch**: `feature/train`
