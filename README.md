@@ -83,3 +83,29 @@ uv run python scripts/preprocess.py \
 ```
 
 **Branch**: `feature/preprocess`
+
+### 3.2 Feature Engineering Script
+
+**File**: `scripts/featurize.py`
+
+**Purpose**: Extract features from preprocessed data.
+
+**Features**:
+- **Extract Title**: Parse title from Name column (Mr, Mrs, Miss, Master, Rare)
+  - Groups titles
+  - Normalizes: Mlle → Miss, Ms → Miss, Mme → Mrs
+- **Create Family_size**: Combines SibSp + Parch + 1, then categorizes:
+  - "Alone" (1 person)
+  - "Small" (2-4 people)
+  - "Large" (5+ people)
+- **Drop unnecessary columns**: Name, Ticket, Parch, SibSp
+- **Convert Age to int64**
+
+**Usage**:
+```bash
+uv run python scripts/featurize.py \
+  --input data/processed/train_processed.csv \
+  --output data/featurized/train_featurized.csv
+```
+
+**Branch**: `feature/featurize`
