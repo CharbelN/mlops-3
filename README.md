@@ -202,3 +202,30 @@ uv run python scripts/predict.py \
 **Branch**: `feature/predict`
 
 ---
+
+## 4. Running the Pipeline
+
+### Automated Pipeline Execution
+
+Use the provided scripts to run the complete pipeline:
+
+**Bash (Linux/Mac/Git Bash):**
+```bash
+chmod +x run_pipeline.sh
+
+./run_pipeline.sh
+```
+
+**PowerShell (Windows):**
+```powershell
+.\run_pipeline.ps1
+```
+
+The pipeline scripts automatically execute all 5 steps in sequence:
+1. Preprocess raw data
+2. Engineer features
+3. Train model
+4. Evaluate model (if labels available)
+5. Make predictions
+
+**Branch**: `feature/run-pipeline`
