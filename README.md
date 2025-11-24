@@ -49,3 +49,37 @@ git checkout -b setup_package
 ```
 
 ✅ Package setup complete with all required dependencies!
+
+## 3. Notebook → Scripts
+
+Converting the Titanic survival prediction notebook into modular CLI scripts.
+
+### 3.1 Preprocessing Script
+
+**File**: `scripts/preprocess.py`
+
+**Purpose**: Load raw CSV data, perform initial cleaning, and save processed data.
+
+**Features**:
+- Drop Cabin column (too many missing values)
+- Fill missing Embarked values with 'S'
+- Fill missing Fare values with mean
+- Fill missing Age values using group median (by Sex and Pclass)
+- Convert Survived column to int64
+
+**Usage**:
+```bash
+# Single file mode
+uv run python scripts/preprocess.py \
+  --input data/raw/train.csv \
+  --output data/processed/train_processed.csv
+
+# Combined train/test mode
+uv run python scripts/preprocess.py \
+  --input data/raw/train.csv \
+  --test_path data/raw/test.csv \
+  --output data/processed/train_processed.csv \
+  --output_test data/processed/test_processed.csv
+```
+
+**Branch**: `feature/preprocess`

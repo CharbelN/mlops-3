@@ -57,51 +57,99 @@ def split_data(df):
     return train, test
 
 
+def preprocess_single_file(input_path, output_path):
+    """Preprocess a single CSV file (train or test mode)."""
+    print(f"Loading data from {input_path}...")
+    df = pd.read_csv(input_path)
+    print(f"Loaded data shape: {df.shape}")
+
+    # Drop Cabin column due to numerous null values
+    if "Cabin" in df.columns:
+        df.drop(columns=["Cabin"], inplace=True)
+
+    # Fill missing values based on column availability
+    if "Embarked" in df.columns:
+        df["Embarked"].fillna("S", inplace=True)
+    
+    if "Fare" in df.columns:
+        df["Fare"].fillna(df["Fare"].mean(), inplace=True)
+
+    # Fill missing Age values using group median if possible
+    if "Age" in df.columns and df["Age"].isnull().any():
+        if "Sex" in df.columns and "Pclass" in df.columns:
+            df["Age"] = df.groupby(["Sex", "Pclass"])["Age"].transform(
+                lambda x: x.fillna(x.median())
+            )
+        else:
+            df["Age"].fillna(df["Age"].median(), inplace=True)
+
+    # Ensure Survived column is int if it exists
+    if "Survived" in df.columns:
+        df["Survived"] = df["Survived"].astype("int64")
+
+    return df
+
+
 def main():
     parser = argparse.ArgumentParser(description="Preprocess Titanic dataset")
     parser.add_argument(
-        "--train_path", type=str, required=True, help="Path to training CSV file"
+        "--input", type=str, required=True, help="Path to input CSV file"
     )
     parser.add_argument(
-        "--test_path", type=str, required=True, help="Path to test CSV file"
-    )
-    parser.add_argument(
-        "--output_train",
+        "--output",
         type=str,
         required=True,
-        help="Output path for preprocessed training data",
+        help="Output path for preprocessed data",
+    )
+    parser.add_argument(
+        "--test_path", 
+        type=str, 
+        help="Optional: Path to test CSV file for combined preprocessing"
     )
     parser.add_argument(
         "--output_test",
         type=str,
-        required=True,
-        help="Output path for preprocessed test data",
+        help="Optional: Output path for preprocessed test data",
     )
 
     args = parser.parse_args()
 
     # Create output directories if they don't exist
-    Path(args.output_train).parent.mkdir(parents=True, exist_ok=True)
-    Path(args.output_test).parent.mkdir(parents=True, exist_ok=True)
+    Path(args.output).parent.mkdir(parents=True, exist_ok=True)
 
-    print("Loading data...")
-    train, test = load_data(args.train_path, args.test_path)
-    print(f"Loaded train: {train.shape}, test: {test.shape}")
+    # Check if we're doing combined train/test preprocessing or single file
+    if args.test_path and args.output_test:
+        Path(args.output_test).parent.mkdir(parents=True, exist_ok=True)
+        
+        print("Loading data...")
+        train, test = load_data(args.input, args.test_path)
+        print(f"Loaded train: {train.shape}, test: {test.shape}")
 
-    print("Cleaning data...")
-    df = clean_data(train, test)
+        print("Cleaning data...")
+        df = clean_data(train, test)
 
-    print("Splitting data...")
-    train_processed, test_processed = split_data(df)
+        print("Splitting data...")
+        train_processed, test_processed = split_data(df)
 
-    print("Saving preprocessed data...")
-    train_processed.to_csv(args.output_train, index=False)
-    test_processed.to_csv(args.output_test, index=False)
+        print("Saving preprocessed data...")
+        train_processed.to_csv(args.output, index=False)
+        test_processed.to_csv(args.output_test, index=False)
 
-    print(f"Preprocessed train saved to: {args.output_train}")
-    print(f"Preprocessed test saved to: {args.output_test}")
-    print(f"Final train shape: {train_processed.shape}")
-    print(f"Final test shape: {test_processed.shape}")
+        print(f"Preprocessed train saved to: {args.output}")
+        print(f"Preprocessed test saved to: {args.output_test}")
+        print(f"Final train shape: {train_processed.shape}")
+        print(f"Final test shape: {test_processed.shape}")
+    else:
+        # Single file preprocessing
+        print("Processing single file...")
+        df_processed = preprocess_single_file(args.input, args.output)
+        
+        print("Saving preprocessed data...")
+        df_processed.to_csv(args.output, index=False)
+        
+        print(f"Preprocessed data saved to: {args.output}")
+        print(f"Final shape: {df_processed.shape}")
+        print(f"Missing values:\n{df_processed.isnull().sum()}")
 
 
 if __name__ == "__main__":
