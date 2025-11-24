@@ -137,3 +137,36 @@ uv run python scripts/train.py \
 - Reports CV accuracy and training accuracy
 
 **Branch**: `feature/train`
+
+### 3.4 Evaluation Script
+
+**File**: `scripts/evaluate.py`
+
+**Purpose**: Evaluate a trained model on test/validation data.
+
+**Features**:
+- Load trained model from pickle file
+- Compute accuracy on evaluation dataset
+- Generate confusion matrix with interpretation
+- Display classification report (precision, recall, F1-score)
+- Optional: Save metrics to JSON file
+
+**Usage**:
+```bash
+uv run python scripts/evaluate.py \
+  --model models/model.pkl \
+  --input data/featurized/test_featurized.csv
+
+uv run python scripts/evaluate.py \
+  --model models/model.pkl \
+  --input data/featurized/test_featurized.csv \
+  --output results/metrics.json
+```
+
+**Output**:
+- Accuracy score
+- Confusion matrix (TP, TN, FP, FN)
+- Classification report
+- Optional: JSON file with metrics
+
+**Branch**: `feature/evaluate`
