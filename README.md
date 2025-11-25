@@ -229,3 +229,45 @@ The pipeline scripts automatically execute all 5 steps in sequence:
 5. Make predictions
 
 **Branch**: `feature/run-pipeline`
+---
+
+## 5. Class-Based Architecture
+
+**Goal**: Refactor scripts into class-based components with interfaces for better modularity and extensibility.
+
+### 5.1 Preprocessing Classes
+
+**Branch**: `feature/preprocessing-class`
+
+**Module**: `src/mlops_2025/preprocessing/`
+
+**Architecture**:
+- **BasePreprocessor**: Abstract base class defining the preprocessing interface
+- **Preprocessor**: Concrete implementation for single-file preprocessing
+- **CombinedPreprocessor**: Implementation for combined train/test preprocessing
+
+**Key Benefits**:
+- Clean separation of concerns
+- Easy to swap implementations
+- Testable components
+- Reusable across different scripts
+
+**Class Structure**:
+```python
+from mlops_2025.preprocessing import Preprocessor, CombinedPreprocessor
+
+# Single file preprocessing
+preprocessor = Preprocessor()
+df_processed = preprocessor.process(df)
+
+# Combined train/test preprocessing
+combined_preprocessor = CombinedPreprocessor()
+df_processed = combined_preprocessor.process(df_combined)
+```
+
+**Files**:
+- `base_preprocessor.py` - Abstract interface with `process()` method
+- `preprocessor.py` - Concrete implementations
+- `__init__.py` - Module exports
+
+**Updated Script**: `scripts/preprocess.py` now uses these classes instead of standalone functions.

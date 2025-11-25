@@ -4,32 +4,13 @@ from pathlib import Path
 
 import pandas as pd
 
+from mlops_2025.preprocessing import Preprocessor, CombinedPreprocessor
+
 def load_data(train_path, test_path):
     """Load training and test datasets."""
     train = pd.read_csv(train_path)
     test = pd.read_csv(test_path)
     return train, test
-
-
-def clean_data(train, test):
-    """Clean the data by handling missing values and dropping unnecessary columns."""
-    # Drop Cabin column due to numerous null values
-    train.drop(columns=["Cabin"], inplace=True)
-    test.drop(columns=["Cabin"], inplace=True)
-
-    # Fill missing values
-    train["Embarked"].fillna("S", inplace=True)
-    test["Fare"].fillna(test["Fare"].mean(), inplace=True)
-
-    # Create unified dataframe for easier manipulation
-    df = pd.concat([train, test], sort=True).reset_index(drop=True)
-    df.corr(numeric_only=True)["Age"].abs()
-    # Fill missing Age values using group median
-    df["Age"] = df.groupby(["Sex", "Pclass"])["Age"].transform(
-        lambda x: x.fillna(x.median())
-    )
-
-    return df
 
 
 def split_data(df):
@@ -46,39 +27,6 @@ def split_data(df):
         train["Survived"] = train["Survived"].astype("int64")
 
     return train, test
-
-
-def preprocess_single_file(input_path, output_path):
-    """Preprocess a single CSV file (train or test mode)."""
-    print(f"Loading data from {input_path}...")
-    df = pd.read_csv(input_path)
-    print(f"Loaded data shape: {df.shape}")
-
-    # Drop Cabin column due to numerous null values
-    if "Cabin" in df.columns:
-        df.drop(columns=["Cabin"], inplace=True)
-
-    # Fill missing values based on column availability
-    if "Embarked" in df.columns:
-        df["Embarked"].fillna("S", inplace=True)
-    
-    if "Fare" in df.columns:
-        df["Fare"].fillna(df["Fare"].mean(), inplace=True)
-
-    # Fill missing Age values using group median if possible
-    if "Age" in df.columns and df["Age"].isnull().any():
-        if "Sex" in df.columns and "Pclass" in df.columns:
-            df["Age"] = df.groupby(["Sex", "Pclass"])["Age"].transform(
-                lambda x: x.fillna(x.median())
-            )
-        else:
-            df["Age"].fillna(df["Age"].median(), inplace=True)
-
-    # Ensure Survived column is int if it exists
-    if "Survived" in df.columns:
-        df["Survived"] = df["Survived"].astype("int64")
-
-    return df
 
 
 def main():
@@ -116,11 +64,16 @@ def main():
         train, test = load_data(args.input, args.test_path)
         print(f"Loaded train: {train.shape}, test: {test.shape}")
 
-        print("Cleaning data...")
-        df = clean_data(train, test)
+        print("Preprocessing data...")
+        # Combine train and test for consistent preprocessing
+        df = pd.concat([train, test], sort=True).reset_index(drop=True)
+        
+        # Use CombinedPreprocessor for combined preprocessing
+        preprocessor = CombinedPreprocessor()
+        df_processed = preprocessor.process(df)
 
         print("Splitting data...")
-        train_processed, test_processed = split_data(df)
+        train_processed, test_processed = split_data(df_processed)
 
         print("Saving preprocessed data...")
         train_processed.to_csv(args.output, index=False)
@@ -133,7 +86,13 @@ def main():
     else:
         # Single file preprocessing
         print("Processing single file...")
-        df_processed = preprocess_single_file(args.input, args.output)
+        print(f"Loading data from {args.input}...")
+        df = pd.read_csv(args.input)
+        print(f"Loaded data shape: {df.shape}")
+        
+        # Use standard Preprocessor for single file
+        preprocessor = Preprocessor()
+        df_processed = preprocessor.process(df)
         
         print("Saving preprocessed data...")
         df_processed.to_csv(args.output, index=False)
