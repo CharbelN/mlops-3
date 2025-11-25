@@ -271,3 +271,41 @@ df_processed = combined_preprocessor.process(df_combined)
 - `__init__.py` - Module exports
 
 **Updated Script**: `scripts/preprocess.py` now uses these classes instead of standalone functions.
+
+### 5.2 Feature Engineering Classes
+
+**Branch**: `feature/classes-featurize`
+
+**Module**: `src/mlops_2025/features/`
+
+**Architecture**:
+- **BaseFeaturesComputer**: Abstract base class defining the feature engineering interface
+- **FeaturesComputer**: Concrete implementation for Titanic feature engineering
+
+**Key Benefits**:
+- Encapsulates feature engineering logic
+- Easy to create alternative feature sets
+- Testable and maintainable
+- Consistent interface with other components
+
+**Class Structure**:
+```python
+from mlops_2025.features import FeaturesComputer
+
+# Compute features
+features_computer = FeaturesComputer()
+df_featurized = features_computer.compute(df)
+```
+
+**Features Implemented**:
+- Extract Title from Name (Mr, Mrs, Miss, Master, Rare)
+- Create Family_size feature (Alone, Small, Large)
+- Drop unnecessary columns
+- Convert Age to integer
+
+**Files**:
+- `base_features_computer.py` - Abstract interface with `compute()` method
+- `features_computer.py` - Concrete implementation
+- `__init__.py` - Module exports
+
+**Updated Script**: `scripts/featurize.py` now uses the `FeaturesComputer` class.
