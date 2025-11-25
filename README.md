@@ -309,3 +309,54 @@ df_featurized = features_computer.compute(df)
 - `__init__.py` - Module exports
 
 **Updated Script**: `scripts/featurize.py` now uses the `FeaturesComputer` class.
+
+### 5.3 Model Classes
+
+**Branch**: `feature/classes-models`
+
+**Module**: `src/mlops_2025/models/`
+
+**Architecture**:
+- **BaseModel**: Abstract base class defining the model interface
+- **LogisticRegressionModel**: Concrete implementation with scikit-learn LogisticRegression
+
+**Key Benefits**:
+- Standardized interface for all models
+- Easy to swap different model implementations
+- Encapsulates preprocessing pipeline
+- Consistent train/predict/evaluate API
+
+**Class Structure**:
+```python
+from mlops_2025.models import LogisticRegressionModel
+
+# Initialize model
+model = LogisticRegressionModel(max_iter=1000, random_state=42)
+
+# Train model
+trained_pipeline, cv_score = model.train(X, y)
+
+# Make predictions
+predictions = model.predict(X)
+probabilities = model.predict_proba(X)
+
+# Evaluate
+accuracy = model.evaluate(X, y)
+
+# Save/Load
+model.save('models/model.pkl')
+model.load('models/model.pkl')
+```
+
+**Features**:
+- Built-in preprocessing pipeline (MinMaxScaler, OneHotEncoder, OrdinalEncoder)
+- Cross-validation during training
+- Support for predict and predict_proba
+- Model persistence with pickle
+
+**Files**:
+- `base_model.py` - Abstract interface with train/predict/evaluate methods
+- `model.py` - LogisticRegressionModel implementation
+- `__init__.py` - Module exports
+
+**Updated Scripts**: `scripts/train.py`, `scripts/evaluate.py`, and `scripts/predict.py` now use the `LogisticRegressionModel` class.
