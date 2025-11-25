@@ -7,12 +7,14 @@ from pathlib import Path
 import pandas as pd
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 
+from mlops_2025.models import LogisticRegressionModel
+
+
 def load_model(model_path):
     """Load trained model from pickle file."""
     print(f"Loading model from {model_path}...")
-    with open(model_path, 'rb') as f:
-        model = pickle.load(f)
-    print("✓ Model loaded successfully!")
+    model = LogisticRegressionModel()
+    model.load(model_path)
     return model
 
 
