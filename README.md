@@ -360,3 +360,35 @@ model.load('models/model.pkl')
 - `__init__.py` - Module exports
 
 **Updated Scripts**: `scripts/train.py`, `scripts/evaluate.py`, and `scripts/predict.py` now use the `LogisticRegressionModel` class.
+
+### 5.4 RandomForest Model Implementation
+
+**Branch**: `feature/model-rf`
+
+**Module**: `src/mlops_2025/models/random_forest_model.py`
+
+**Implementation**: `RandomForestModel` - Random Forest classifier with preprocessing pipeline
+
+**Usage**:
+```python
+from mlops_2025.models import RandomForestModel
+
+# Initialize Random Forest model
+model = RandomForestModel(n_estimators=100, max_depth=None, random_state=42)
+
+# Train, predict, evaluate (same API as LogisticRegressionModel)
+trained_pipeline, cv_score = model.train(X, y)
+predictions = model.predict(X)
+accuracy = model.evaluate(X, y)
+```
+
+**Parameters**:
+- `n_estimators`: Number of trees in the forest (default: 100)
+- `max_depth`: Maximum depth of trees (default: None, unlimited)
+- `random_state`: Random seed for reproducibility
+
+**Features**:
+- Same preprocessing pipeline as LogisticRegression
+- Ensemble of decision trees
+- Better handling of non-linear relationships
+- Built-in feature importance
