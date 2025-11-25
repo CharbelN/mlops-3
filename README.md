@@ -392,3 +392,51 @@ accuracy = model.evaluate(X, y)
 - Ensemble of decision trees
 - Better handling of non-linear relationships
 - Built-in feature importance
+
+### 5.5 XGBoost Model Implementation
+
+**Branch**: `feature/model-xgb`
+
+**Module**: `src/mlops_2025/models/xgboost_model.py`
+
+**Implementation**: `XGBoostModel` - Gradient boosting classifier with preprocessing pipeline
+
+**Features**:
+- Gradient boosting algorithm
+- Superior performance on structured data
+- Built-in regularization
+- Handles missing values automatically
+- Feature importance ranking
+
+**Dependencies**: Requires `xgboost>=2.1.3` (added to pyproject.toml)
+
+---
+
+## 6. Model Comparison
+
+All models share the same interface (`BaseModel`) and can be easily swapped:
+
+```python
+# Choose any model implementation
+from mlops_2025.models import LogisticRegressionModel, RandomForestModel, XGBoostModel
+
+# Logistic Regression
+model = LogisticRegressionModel(max_iter=1000, random_state=42)
+
+# Random Forest
+model = RandomForestModel(n_estimators=100, random_state=42)
+
+# XGBoost
+model = XGBoostModel(n_estimators=100, max_depth=3, random_state=42)
+
+# Same training interface for all
+trained_pipeline, cv_score = model.train(X, y)
+model.save('models/model.pkl')
+```
+
+**Benefits of this architecture**:
+-  Easy model comparison
+-  Consistent API across all models
+-  Swappable implementations
+-  Clean separation of concerns
+-  Extensible for new models
