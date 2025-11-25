@@ -440,3 +440,12 @@ model.save('models/model.pkl')
 -  Swappable implementations
 -  Clean separation of concerns
 -  Extensible for new models
+
+---
+
+## 7. Potential Improvements
+
+- Implement model registry for version tracking
+- Add logging and monitoring
+- Create unit tests for each class
+- Create experiment tracking (MLflow/Weights & Biases)

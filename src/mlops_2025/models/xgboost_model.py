@@ -1,5 +1,3 @@
-"""XGBoost model implementation."""
-
 import pickle
 from pathlib import Path
 from typing import Tuple, Any
@@ -16,8 +14,6 @@ from .base_model import BaseModel
 
 
 class XGBoostModel(BaseModel):
-    """XGBoost model with preprocessing pipeline."""
-
     def __init__(
         self,
         n_estimators: int = 100,
@@ -25,14 +21,6 @@ class XGBoostModel(BaseModel):
         learning_rate: float = 0.1,
         random_state: int = 42
     ):
-        """Initialize the XGBoost model.
-        
-        Args:
-            n_estimators: Number of boosting rounds
-            max_depth: Maximum depth of trees
-            learning_rate: Step size shrinkage used to prevent overfitting
-            random_state: Random state for reproducibility
-        """
         self.n_estimators = n_estimators
         self.max_depth = max_depth
         self.learning_rate = learning_rate
@@ -41,13 +29,10 @@ class XGBoostModel(BaseModel):
         self._build_pipeline()
 
     def _build_pipeline(self) -> None:
-        """Build the preprocessing and model pipeline."""
-        # Define feature groups
         num_features = ['Age', 'Fare']
         cat_features = ['Sex', 'Embarked', 'Title', 'Family_size']
         ord_features = ['Pclass']
-        
-        # Create transformers
+
         transformers = [
             ('num', MinMaxScaler(), num_features),
             ('cat', OneHotEncoder(handle_unknown='ignore'), cat_features),
@@ -59,7 +44,6 @@ class XGBoostModel(BaseModel):
             remainder='passthrough'
         )
         
-        # Create model
         model = XGBClassifier(
             n_estimators=self.n_estimators,
             max_depth=self.max_depth,
@@ -68,25 +52,14 @@ class XGBoostModel(BaseModel):
             eval_metric='logloss'
         )
         
-        # Create pipeline
         self.pipeline = Pipeline([
             ('preprocessor', preprocessor),
             ('classifier', model)
         ])
 
     def train(self, X: pd.DataFrame, y: pd.Series) -> Tuple[Any, float]:
-        """Train the model on the provided data.
-        
-        Args:
-            X: Feature DataFrame
-            y: Target Series
-            
-        Returns:
-            Tuple of (trained_pipeline, cross_validation_score)
-        """
         print("\nTraining XGBoost model...")
         
-        # Perform cross-validation
         print("Performing 5-fold cross-validation...")
         cv_scores = cross_val_score(self.pipeline, X, y, cv=5, scoring='accuracy')
         cv_mean = cv_scores.mean()
@@ -95,7 +68,6 @@ class XGBoostModel(BaseModel):
         print(f"CV Scores: {cv_scores}")
         print(f"Mean CV Accuracy: {cv_mean:.4f} (+/- {cv_std * 2:.4f})")
         
-        # Train on full dataset
         print("\nTraining on full dataset...")
         self.pipeline.fit(X, y)
         
@@ -105,51 +77,21 @@ class XGBoostModel(BaseModel):
         return self.pipeline, cv_mean
 
     def predict(self, X: pd.DataFrame) -> np.ndarray:
-        """Make predictions on the provided data.
-        
-        Args:
-            X: Feature DataFrame
-            
-        Returns:
-            Array of predictions
-        """
         if self.pipeline is None:
             raise ValueError("Model has not been trained or loaded yet")
         return self.pipeline.predict(X)
 
     def predict_proba(self, X: pd.DataFrame) -> np.ndarray:
-        """Predict class probabilities on the provided data.
-        
-        Args:
-            X: Feature DataFrame
-            
-        Returns:
-            Array of class probabilities
-        """
         if self.pipeline is None:
             raise ValueError("Model has not been trained or loaded yet")
         return self.pipeline.predict_proba(X)
 
     def evaluate(self, X: pd.DataFrame, y: pd.Series) -> float:
-        """Evaluate the model on the provided data.
-        
-        Args:
-            X: Feature DataFrame
-            y: Target Series
-            
-        Returns:
-            Accuracy score
-        """
         if self.pipeline is None:
             raise ValueError("Model has not been trained or loaded yet")
         return self.pipeline.score(X, y)
 
     def save(self, filepath: str) -> None:
-        """Save the model to a file.
-        
-        Args:
-            filepath: Path where to save the model
-        """
         if self.pipeline is None:
             raise ValueError("Model has not been trained yet")
         
@@ -161,11 +103,6 @@ class XGBoostModel(BaseModel):
         print(f"Model saved successfully!")
 
     def load(self, filepath: str) -> None:
-        """Load the model from a file.
-        
-        Args:
-            filepath: Path from where to load the model
-        """
         print(f"Loading model from {filepath}...")
         with open(filepath, 'rb') as f:
             self.pipeline = pickle.load(f)
